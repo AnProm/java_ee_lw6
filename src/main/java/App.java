@@ -7,8 +7,10 @@ public class App {
 
         Connection connection = JDBC.connect();
         if (connection !=null) {
+            JDBC.getShortedAlbumComposition(connection,5,"album3");
+
             JDBC.getShortedComposition(connection, 5);
-            JDBC.removeCompositionByName(connection, "comp4");
+            JDBC.removeCompositionByName(connection, "comp8");
             JDBC.getShortedComposition(connection, 5);
             JDBC.insertComposition(connection, "Composition 99", 6, 2);
             JDBC.getShortedComposition(connection, 5);

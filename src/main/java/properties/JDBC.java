@@ -44,7 +44,7 @@ public class JDBC {
         String SQL = "SELECT c.name as composition_name, c.duration as composition_duration,\n" +
                 "       a.name as album_name FROM composition AS c\n" +
                 "INNER JOIN album a on a.id = c.album_id\n" +
-                "WHERE duration > (?)\n" +
+                "WHERE NOT duration < (?)\n" +
                 "ORDER BY duration ASC\n" +
                 "LIMIT 1";
         try (PreparedStatement pstmt = conn.prepareStatement(SQL)) {
@@ -62,6 +62,34 @@ public class JDBC {
             System.out.println(e.getMessage());
         }
     }
+
+    public static void getShortedAlbumComposition(Connection conn, int minDuration, String albumName) {
+
+        String SQL = "SELECT c.name as composition_name, c.duration as composition_duration,\n" +
+                "       a.name as album_name FROM composition AS c\n" +
+                "INNER JOIN album a on a.id = c.album_id\n" +
+                "WHERE NOT duration < (?)\n" +
+                "AND a.name = (?)\n" +
+                "ORDER BY duration ASC\n" +
+                "LIMIT 1";
+        try (PreparedStatement pstmt = conn.prepareStatement(SQL)) {
+
+            pstmt.setInt(1, minDuration);
+            pstmt.setString(2, albumName);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                System.out.println(String.format("Composition = {name: %s, duration: %d, album: %s}",
+                        rs.getString("composition_name"),
+                        rs.getInt("composition_duration"),
+                        rs.getString("album_name")));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    //=============================================================================
 
     public static void removeCompositionByName(Connection conn, String compositionName){
         String SQL = "DELETE FROM composition \n" +
