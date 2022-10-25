@@ -1,12 +1,14 @@
-INSERT INTO artist(name) values ('artist1'), ('artist2'), ('artist3');
+INSERT INTO artist(name) values ('artist1'), ('artist2'), ('artist3'), ('artist4'), ('artist5');
 
 INSERT INTO album(name, genre, artist_id) VALUES
     ('album1','genre1', 1),
     ('album2', 'genre2', 2),
-    ('album3','genre1', 2);
+    ('album3','genre1', 2),
+    ('album4', 'genre4', 2),
+    ('album5', 'genre5', 2);
 
 INSERT INTO composition(name, duration, album_id) VALUES
-    ('comp1', 9, 1), ('comp2', 99, 1), ('comp3', 4, 1), ('comp4', 7, 3);
+    ('comp1', 9, 1), ('comp2', 99, 1), ('comp3', 4, 1), ('comp8', 6, 1), ('comp4', 7, 3);
 
 SELECT c.name as composition_name, c.duration as composition_duration,
        a.name as albom_name FROM composition AS c
