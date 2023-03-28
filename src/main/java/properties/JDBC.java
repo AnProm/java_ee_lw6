@@ -39,6 +39,80 @@ public class JDBC {
         return c;
     }
 
+    public static void getCompositionsByMaxDurationWithArtist(Connection conn, int maxDuration){
+        String SQL = "SELECT c.name AS composition_name, c.duration, art.name AS art_name FROM composition AS c \n" +
+                "LEFT JOIN album AS a ON c.album_id = a.id \n" +
+                "LEFT JOIN artist AS art ON a.artist_id = art.id \n" +
+                "WHERE c.duration < (?)";
+
+        try(PreparedStatement pstmt = conn.prepareStatement(SQL)){
+            pstmt.setInt(1, maxDuration);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                System.out.println(String.format("Composition = {name: %s, duration: %d, art_name: %s}",
+                        rs.getString("composition_name"),
+                        rs.getInt("duration"),
+                        rs.getString("art_name")));
+
+            }
+        }
+        catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public static void getCompositionsFromAlbumWhereCompositionMoreThen(Connection conn, int minCountCompInAlbum){
+        String SQL = "SELECT a.name AS alb_name, COUNT(c.id) AS num_of_comp, art.name AS art_name FROM composition AS c \n" +
+                "LEFT JOIN album AS a ON c.album_id = a.id \n" +
+                "LEFT JOIN artist AS art ON a.artist_id = art.id \n" +
+                "GROUP BY alb_name, art_name\n" +
+                "HAVING COUNT(c.id) > (?)";
+
+        try(PreparedStatement pstmt = conn.prepareStatement(SQL)){
+            pstmt.setInt(1, minCountCompInAlbum);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                System.out.println(String.format("Album = {alb_name: %s, num_of_comp: %d, art_name: %s}",
+                        rs.getString("alb_name"),
+                        rs.getInt("num_of_comp"),
+                        rs.getString("art_name")));
+
+            }
+        }
+        catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public static void getCompositionsListeningStory(Connection conn, String compName){
+        String SQL = "WITH RECURSIVE temp1(name, id, prev_listening_id, path) AS (\n" +
+                "\tSELECT c.name, c.id, c.prev_listening_id, cast (c.name as varchar (50)) as path\n" +
+                "\tFROM composition AS c \n" +
+                "\tWHERE c.name = (?)\n" +
+                "\tUNION\n" +
+                "\tSELECT c2.name, c2.id, c2.prev_listening_id, cast (temp1.path || '->'|| c2.name as varchar(50))\n" +
+                "\tFROM composition AS c2 INNER JOIN temp1 on (temp1.prev_listening_id = c2.id))\n" +
+                "\tSELECT * FROM temp1";
+
+        try(PreparedStatement pstmt = conn.prepareStatement(SQL)){
+            pstmt.setString(1, compName);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                System.out.println(String.format("Album = {name: %s, id: %d, prev_listening_id: %d, path: %s}",
+                        rs.getString("name"),
+                        rs.getInt("id"),
+                        rs.getInt("prev_listening_id"),
+                        rs.getString("path")));
+            }
+        }
+        catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
+    }
+/*
     public static void getShortedComposition(Connection conn, int minDuration) {
 
         String SQL = "SELECT c.name as composition_name, c.duration as composition_duration,\n" +
@@ -133,5 +207,5 @@ public class JDBC {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
-    }
+    }*/
 }

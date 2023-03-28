@@ -28,5 +28,6 @@ CREATE TABLE composition (
     name VARCHAR(254) NOT NULL,
     duration INTEGER NOT NULL,
     album_id INTEGER,
+    prev_listening_id INTEGER,
     FOREIGN KEY (album_id) REFERENCES album(id)
 );
